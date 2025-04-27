@@ -1,11 +1,11 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
-mongoose.connect("")
+mongoose.connect("mongodb+srv://NishulDhakar:Ram1234@cluster0.worc1jg.mongodb.net/coursera-web")
 
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
-const userSchema = Schema({
+const userSchema =  new Schema({
     email : { type : String , unique : true},
     password : String,
     firstName : String,
@@ -13,7 +13,7 @@ const userSchema = Schema({
 
 });
 
-const adminSchema = Schema({
+const adminSchema = new  Schema({
 
     email : { type : String , unique : true},
     password : String,
@@ -22,7 +22,7 @@ const adminSchema = Schema({
 
 });
 
-const courseSchema = Schema({
+const courseSchema =  new Schema({
 
     title : String,
     description : String,
@@ -33,7 +33,7 @@ const courseSchema = Schema({
 });
 
 
-const purchaseSchema =Schema({
+const purchaseSchema = new Schema({
     
     userId : ObjectId,
     courseId : ObjectId 
@@ -42,13 +42,11 @@ const purchaseSchema =Schema({
 
 
 const userModel = mongoose.model("user", userSchema);
-const adminModel = mongoose.model("user", adminSchema);
+const adminModel = mongoose.model("admin", adminSchema);
 const courseModel = mongoose.model("course", courseSchema);
 const purchaseModel = mongoose.model("purchase", purchaseSchema);
 
-
-module.exports = {
-
+export {
     userModel,
     adminModel,
     courseModel,

@@ -1,26 +1,30 @@
 import { Router } from "express";
+
+import{adminModel } from "../db.js"
+
+
 const adminRouter = Router();
-userRouter.post("/signup", function(req, res) {
+adminRouter.post("/signup", function(req, res) {
     res.json({
         message: "chal raha hai"
     });
 });
-userRouter.post("/signin", function(req, res) {
+adminRouter.post("/signin", function(req, res) {
     res.json({
         message: "chal raha hai"
     });
 });
-userRouter.post("/course", function(req, res) {
+adminRouter.post("/course", function(req, res) {
     res.json({
         message: "chal raha hai"
     });
 });
-userRouter.put("/course", function(req, res) {
+adminRouter.put("/course", function(req, res) {
     res.json({
         message: "chal raha hai"
     });
 });
-userRouter.get("/course/bulk", function(req, res) {
+adminRouter.get("/course/bulk", function(req, res) {
     res.json({
         message: "chal raha hai"
     });

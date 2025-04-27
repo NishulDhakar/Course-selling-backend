@@ -8,7 +8,7 @@
 8 Add middlewares for user and admin auth
 - Add a database (mongodb), use doten to store the database connection string
 - Define the schema for User, Admin, Course, Purchase
-_ Comnlete the routes for user loain. cianun. nurchase a course. see course (fytra nointe - lIse eynress routina to
+_ Comnlete the routes for user loain. cianun. nurchase a course. see course fytra nointe - lIse eynress routina to
 - Complete the routes for user login, signup, purchase a course,
 see course (Extra points - Use express routing to
 better structure your routes)
