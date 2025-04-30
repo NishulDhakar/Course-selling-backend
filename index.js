@@ -4,6 +4,7 @@ import userRouter from "./routes/user.js"
 import courseRouter from "./routes/course.js"
 import adminRouter from "./routes/admin.js"
 import mongoose from "mongoose";
+import 'dotenv/config';
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use("/api/v1/course", courseRouter);
 
 async function main() {
 
-    mongoose.connect("mongodb+srv://NishulDhakar:Ram1234@cluster0.worc1jg.mongodb.net/coursera-web")
+    mongoose.connect(process.env.MONGO_URL)
     app.listen(3001 , ()=>{
         console.log("running");
     })
