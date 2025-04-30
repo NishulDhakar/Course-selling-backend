@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-mongoose.connect("mongodb+srv://NishulDhakar:Ram1234@cluster0.worc1jg.mongodb.net/coursera-web")
-
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
