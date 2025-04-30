@@ -1,11 +1,10 @@
 import { Router } from "express";
-import{adminModel } from "../db.js"
+import{adminModel, courseModel } from "../db.js"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 import { string, z } from "zod";
-
-
-const JWT_ADMIN_PASSWORD = "Nishul123"
+import  JWT_ADMIN_PASSWORD from "../config.js";
+import { adminMiddleware } from "../middleware/admin.js";
 
 const adminRouter = Router();
 adminRouter.post("/signup", async function(req, res) {
@@ -88,14 +87,34 @@ adminRouter.post("/signin", async function(req, res) {
         });
     }
 });
-adminRouter.post("/course", function(req, res) {
+adminRouter.post("/course", adminMiddleware , async function(req, res) {
+
+    const adminId = req.userId;
+
+    const {title , description , price , imageUrl }  = req.body;
+    
+
+    const course = await courseModel.create({
+
+        title , description , price , imageUrl, creatorId : adminId
+
+    })
+
+
     res.json({
-        message: "chal raha hai"
+        message: "course created",
+        courseId : course._id
     });
 });
-adminRouter.put("/course", function(req, res) {
+
+
+adminRouter.put("/course",adminMiddleware , async function(req, res) {
+
+
+  await 
+
     res.json({
-        message: "chal raha hai"
+        message: "course updated"
     });
 });
 adminRouter.get("/course/bulk", function(req, res) {
