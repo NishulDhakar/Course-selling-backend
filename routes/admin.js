@@ -3,7 +3,7 @@ import { adminModel, courseModel } from "../db.js"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 import { string, z } from "zod";
-import  JWT_ADMIN_PASSWORD from "../config.js";
+import { JWT_ADMIN_PASSWORD } from "../config.js";
 import { adminMiddleware } from "../middleware/admin.js";
 
 const adminRouter = Router();
@@ -142,18 +142,24 @@ adminRouter.put("/course",adminMiddleware , async function(req, res) {
         });
 });
 
-adminRouter.get("/course/bulk" , adminMiddleware,async function(req, res) {
-
+adminRouter.get("/course/bulk", adminMiddleware, async function(req, res) {
     const adminId = req.userId;
-
-    const courses = await courseModel.find({
-        creatorId: adminId
-    })
-
-    res.json({
-        message: "",
-        courses
-    });
+    
+    try {
+        const courses = await courseModel.find({
+            creatorId: adminId
+        });
+        
+        res.json({
+            message: "Courses retrieved successfully",
+            courses
+        });
+    } catch (error) {
+        console.error("Error fetching courses:", error);
+        res.status(500).json({
+            message: "Error retrieving courses"
+        });
+    }
 });
 
 export default adminRouter

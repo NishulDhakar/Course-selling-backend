@@ -1,100 +1,99 @@
 import { Router } from "express";
-import{userModel } from "../db.js"
+import { courseModel, purchaseModel, userModel } from "../db.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt"
-import { string, z } from "zod";
-import  JWT_USER_PASSWORD from "../config.js";
-
+import bcrypt from "bcrypt";
+import { z } from "zod";
+import { JWT_USER_PASSWORD } from "../config.js";
+import { userMiddleware } from "../middleware/user.js";
 
 const userRouter = Router();
 
-userRouter.post("/signup",async function(req, res) {
+// ========================= SIGNUP =========================
 
-    const { email , password , firstName , lastName} = req.body;
-     // add zode validation
+userRouter.post("/signup", async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
 
-     const requiredBody = z.object({
-        email : z.string(),
-        password : z.string().min(6).max(20)
-     })
+  // Zod validation schema
+  const requiredBody = z.object({
+    email: z.string().email(),
+    password: z.string().min(6).max(20),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+  });
 
-     const parsedDataSuccess = requiredBody.safeParse(req.body);
+  const parsedData = requiredBody.safeParse(req.body);
 
-     if(!parsedDataSuccess){
+  if (!parsedData.success) {
+    return res.status(400).json({ message: "Invalid format or missing fields" });
+  }
 
-        res.json({
-             message : "invalid fortmat"
-        })
-     }
+  try {
+    const existingUser = await userModel.findOne({ email });
 
-    try{
-        const existingUser = await userModel.findOne({
-            email
-        });
-
-        if(existingUser){
-            return res.status(409).json({
-                message : "user exist alredy"
-            });
-        }
-        const hashPass = await bcrypt.hash(password ,5)
-        await userModel.create({
-        email, 
-        password : hashPass,
-        firstName, 
-        lastName
-    });
-
-    return res.status(201).json({
-        message: "Registration successful"
-    });
-
-}catch(e){
-    if (e.code === 11000) {
-        return res.status(409).json({
-            message: "User already exists"
-        });
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
     }
-    
+
+    const hashPass = await bcrypt.hash(password, 10);
+
+    await userModel.create({
+      email,
+      password: hashPass,
+      firstName,
+      lastName,
+    });
+
+    return res.status(201).json({ message: "Registration successful" });
+  } catch (e) {
     console.error("Signup error:", e);
-    return res.status(500).json({
-        message: "Error during registration"
-    });
-}
-
+    return res.status(500).json({ message: "Error during registration" });
+  }
 });
 
-userRouter.post("/signin", async function(req, res) {
+// ========================= SIGNIN =========================
 
-    const {email , password} = req.body;
+userRouter.post("/signin", async (req, res) => {
+  const { email, password } = req.body;
 
-    const user = await userModel.findOne({
-        email : email,
-        password : password
-    });
+  try {
+    const user = await userModel.findOne({ email });
 
-    if(user) {
-
-        const token = jwt.sign({
-            id : user._id
-        }, JWT_USER_PASSWORD);
-
-        res.json({
-            token : token
-        });
-
-    }else{
-        res.status(403).json({
-            message: "incorrect creadntials"
-        });
+    if (!user) {
+      return res.status(403).json({ message: "Incorrect credentials" });
     }
-    
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(403).json({ message: "Incorrect credentials" });
+    }
+
+    const token = jwt.sign({ id: user._id }, JWT_USER_PASSWORD, { expiresIn: "1d" });
+
+    return res.json({ token });
+  } catch (error) {
+    console.error("Signin error:", error);
+    return res.status(500).json({ message: "Error during signin" });
+  }
 });
 
-userRouter.get("/purchases", function(req, res) {
-    res.json({
-        message: "chal raha hai"
-    });
+// ========================= GET PURCHASES =========================
+
+userRouter.get("/purchases", userMiddleware, async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    const purchases = await purchaseModel.find({ userId });
+
+    const courseIds = purchases.map(p => p.courseId);
+
+    const courseData = await courseModel.find({ _id: { $in: courseIds } });
+
+    return res.json({ purchases, courseData });
+  } catch (e) {
+    console.error("Error fetching purchases:", e);
+    return res.status(500).json({ message: "Error retrieving purchases" });
+  }
 });
 
 export default userRouter;
